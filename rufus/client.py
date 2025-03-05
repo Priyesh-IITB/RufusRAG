@@ -24,7 +24,8 @@ class RufusClient:
             log_file=log_file,
             log_level=log_level,
             headers=headers,
-            num_search_results=num_search_results
+            num_search_results=num_search_results,
+            timeout=timeout
         )
     
     async def start(self, start_url, prompt, **kwargs):
