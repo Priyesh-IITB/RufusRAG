@@ -1,1 +1,27 @@
+# General configuration parameters
+log_file: "rufus.log"
+log_level: "INFO"
 
+# Crawling Configuration
+max_depth: 1
+delay: 10
+do_rank: True
+structured_output: True
+timeout: 60
+
+# LLM Configuration for search query generation
+llm_api_key: "AIzaSyAfn-WV-ZhcpT-GwpRY6J-FyQcMn5zlT14"
+llm_provider: "google"
+llm_name: "models/gemini-1.5-flash-latest"
+
+# Embedding Model (Ranker) Configuration
+embd_model_api_key: "AIzaSyAfn-WV-ZhcpT-GwpRY6J-FyQcMn5zlT14"
+embd_model_provider: "google"
+embd_model_name: "models/text-embedding-004"
+
+# Ranker Similarity Metric Configuration
+similarity_metric: "cosine"
+
+# Search Engine
+search_engine: "google"
+num_search_results: 10
