@@ -57,7 +57,7 @@ async def is_url_online(url, timeout=5):
         return False
 
 async def persistent_request(url, session=None, retries=3, delay=1.5, headers=None, timeout=5, logger=None):
-    """Fetch webpage content with retries."""
+    """Fetch webpage content with retries, handling timeouts and client errors."""
     if logger is None:
         logger = logging.getLogger("RUFUSLogger")
     attempts = 0
@@ -72,11 +72,13 @@ async def persistent_request(url, session=None, retries=3, delay=1.5, headers=No
                     async with temp_session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
                         response.raise_for_status()
                         return await response.text()
-        except aiohttp.ClientError as e:
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
             attempts += 1
             logger.warning(f"Attempt {attempts} for {url} failed: {e}")
+            if attempts == retries:
+                logger.error(f"All {retries} attempts failed for {url}")
+                return None
             await asyncio.sleep(delay)
-    logger.error(f"All {attempts} attempts failed for {url}")
     return None
 
 def cosine_similarity(a, b):
