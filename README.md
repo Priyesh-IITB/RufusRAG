@@ -2,7 +2,6 @@
 
 RUFUS is a Python-based information retrieval system designed to efficiently retrieve and rank content from various sources on the web and is being developed with the idea of seamless integration with Retrieval-Augmented Generation (RAG) pipelines. Using AI-powered web crawling, RUFUS navigates complex web structures to selectively retrieve and synthesize relevant data into structured JSON format. This simplifies the process of collecting and structuring online data for AI models and applications.
 
-Disclaimer: This project was developed as a solution to a timed case study by Chima AI.
 
 # Features
 
