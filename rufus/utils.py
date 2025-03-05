@@ -47,32 +47,50 @@ def is_valid_url(url):
     parsed_url = urlparse(url)
     return bool(parsed_url.scheme in ["http", "https"] and parsed_url.netloc)
 
-async def is_url_online(url, timeout=5):
+async def is_url_online(url, timeout=30):
     """Check if the URL is online by sending a HEAD request."""
     try:
+        client_timeout = aiohttp.ClientTimeout(
+            total=timeout,
+            sock_connect=timeout/2,
+            sock_read=timeout/2
+        )
         async with aiohttp.ClientSession() as session:
-            async with session.head(url, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
-                return response.status == 200
-    except (aiohttp.ClientError, asyncio.TimeoutError):
-        return False
+            async with session.head(url, timeout=client_timeout, ssl=False) as response:
+                return 200 <= response.status < 400
+    except (aiohttp.ClientError, asyncio.TimeoutError, asyncio.CancelledError):
+        # Try with GET request as some servers don't support HEAD
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=client_timeout, ssl=False) as response:
+                    return 200 <= response.status < 400
+        except:
+            return False
 
-async def persistent_request(url, session=None, retries=3, delay=1.5, headers=None, timeout=5, logger=None):
+async def persistent_request(url, session=None, retries=3, delay=1.5, headers=None, timeout=30, logger=None):
     """Fetch webpage content with retries, handling timeouts and client errors."""
     if logger is None:
         logger = logging.getLogger("RUFUSLogger")
     attempts = 0
     while attempts < retries:
         try:
+            # Create a client timeout with reasonable parameters
+            client_timeout = aiohttp.ClientTimeout(
+                total=timeout,
+                sock_connect=timeout/2,
+                sock_read=timeout/2
+            )
+            
             if session:
-                async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
+                async with session.get(url, headers=headers, timeout=client_timeout, ssl=False) as response:
                     response.raise_for_status()
                     return await response.text()
             else:
                 async with aiohttp.ClientSession() as temp_session:
-                    async with temp_session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
+                    async with temp_session.get(url, headers=headers, timeout=client_timeout, ssl=False) as response:
                         response.raise_for_status()
                         return await response.text()
-        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+        except (aiohttp.ClientError, asyncio.TimeoutError, asyncio.CancelledError) as e:
             attempts += 1
             logger.warning(f"Attempt {attempts} for {url} failed: {e}")
             if attempts == retries:

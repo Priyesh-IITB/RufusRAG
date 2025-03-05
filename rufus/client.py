@@ -2,7 +2,7 @@ import asyncio
 from rufus.core.crawler import Crawler
 
 class RufusClient:
-    def __init__(self, max_depth=2, delay=1.5, num_search_results=10, do_rank=True, structured_output=True, log_file="rufus.log", log_level="INFO", headers=None, **kwargs):
+    def __init__(self, max_depth=2, delay=1.5, num_search_results=10, do_rank=True, structured_output=True, log_file="rufus.log", log_level="INFO", headers=None, timeout=30, **kwargs):
         """
         Initialize the RufusClient.
 
@@ -14,6 +14,7 @@ class RufusClient:
         :param log_file: string, path to log file
         :param log_level: string, log level
         :param headers: dict, headers to add to requests
+        :param timeout: int, timeout for HTTP requests in seconds
         """
         self.num_search_results = num_search_results
         self.do_rank = do_rank
